@@ -8,6 +8,7 @@ import com.feed_the_beast.ftblib.lib.gui.PanelScrollBar;
 import com.feed_the_beast.ftblib.lib.gui.SimpleButton;
 import com.feed_the_beast.ftblib.lib.gui.TextBox;
 import com.feed_the_beast.ftblib.lib.gui.Theme;
+import com.feed_the_beast.mods.ftbmoney.Tags;
 import com.feed_the_beast.mods.money.FTBMoney;
 import com.feed_the_beast.mods.money.FTBMoneyClientConfig;
 import com.feed_the_beast.mods.money.shop.Shop;
@@ -63,7 +64,7 @@ public class GuiShop extends GuiBase
 		sort = new SimpleButton(this, I18n.format("ftbmoney.shop.tab.sort"), GuiIcons.SORT_AZ, (widget, button) -> {
 			FTBMoneyClientConfig.general.sort = EnumSortType.VALUES[(FTBMoneyClientConfig.general.sort.ordinal() + 1) % EnumSortType.VALUES.length];
 			panelButtons.refreshWidgets();
-			ConfigManager.sync(FTBMoney.MOD_ID, Config.Type.INSTANCE);
+			ConfigManager.sync(Tags.MOD_ID, Config.Type.INSTANCE);
 		})
 		{
 			@Override

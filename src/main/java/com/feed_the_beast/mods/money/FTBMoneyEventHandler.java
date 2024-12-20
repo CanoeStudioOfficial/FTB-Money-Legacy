@@ -10,6 +10,7 @@ import com.feed_the_beast.ftbquests.quest.ServerQuestFile;
 import com.feed_the_beast.ftbquests.quest.reward.Reward;
 import com.feed_the_beast.ftbquests.quest.reward.RewardType;
 import com.feed_the_beast.ftbquests.quest.task.TaskType;
+import com.feed_the_beast.mods.ftbmoney.Tags;
 import com.feed_the_beast.mods.money.integration.MoneyReward;
 import com.feed_the_beast.mods.money.integration.MoneyTask;
 import com.feed_the_beast.mods.money.net.MessageSyncShop;
@@ -34,7 +35,7 @@ import java.util.function.Consumer;
 /**
  * @author LatvianModder
  */
-@Mod.EventBusSubscriber(modid = FTBMoney.MOD_ID)
+@Mod.EventBusSubscriber(modid = Tags.MOD_ID)
 public class FTBMoneyEventHandler
 {
 	public static File getFile(World world)
@@ -97,13 +98,13 @@ public class FTBMoneyEventHandler
 	@SubscribeEvent
 	public static void registerTasks(RegistryEvent.Register<TaskType> event)
 	{
-		event.getRegistry().register(MoneyTask.TYPE = new TaskType(MoneyTask::new).setRegistryName("money").setIcon(Icon.getIcon(FTBMoney.MOD_ID + ":textures/beastcoin.png")));
+		event.getRegistry().register(MoneyTask.TYPE = new TaskType(MoneyTask::new).setRegistryName("money").setIcon(Icon.getIcon(Tags.MOD_ID + ":textures/beastcoin.png")));
 	}
 
 	@SubscribeEvent
 	public static void registerRewards(RegistryEvent.Register<RewardType> event)
 	{
-		event.getRegistry().register(MoneyReward.TYPE = new RewardType(MoneyReward::new).setRegistryName("money").setIcon(Icon.getIcon(FTBMoney.MOD_ID + ":textures/beastcoin.png")));
+		event.getRegistry().register(MoneyReward.TYPE = new RewardType(MoneyReward::new).setRegistryName("money").setIcon(Icon.getIcon(Tags.MOD_ID + ":textures/beastcoin.png")));
 
 		MoneyReward.TYPE.setGuiProvider(new RewardType.GuiProvider()
 		{

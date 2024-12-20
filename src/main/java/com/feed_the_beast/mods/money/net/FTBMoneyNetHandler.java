@@ -1,6 +1,7 @@
 package com.feed_the_beast.mods.money.net;
 
 import com.feed_the_beast.ftblib.lib.net.NetworkWrapper;
+import com.feed_the_beast.mods.ftbmoney.Tags;
 import com.feed_the_beast.mods.money.FTBMoney;
 
 /**
@@ -8,7 +9,7 @@ import com.feed_the_beast.mods.money.FTBMoney;
  */
 public class FTBMoneyNetHandler
 {
-	public static final NetworkWrapper NET = NetworkWrapper.newWrapper(FTBMoney.MOD_ID);
+	public static final NetworkWrapper NET = NetworkWrapper.newWrapper(Tags.MOD_ID);
 
 	public static void init()
 	{
