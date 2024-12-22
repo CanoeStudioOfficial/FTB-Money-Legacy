@@ -1,0 +1,59 @@
+sidebar_button.ftbmoney.shop=Магазин
+key.ftbmoney.shop=Открыть магазин
+ftbquests.task.ftbmoney.money=Деньги
+ftbquests.reward.ftbmoney.money=Деньги
+ftbmoney.shop.tab.title=Заголовок
+ftbmoney.shop.tab.sort=Сортировка
+ftbmoney.shop.tab.sort.price_l_h=Цена Низкая -> Высока
+ftbmoney.shop.tab.sort.price_h_l=Цена Высока -> Низкая
+ftbmoney.shop.tab.sort.name_z_a=Я до А
+ftbmoney.shop.tab.sort.name_a_z=А до Я
+ftbmoney.shop.tab.lock=Закрыт
+ftbmoney.shop.tab.icon=Иконка
+ftbmoney.shop.entry.sell=Цена продажи
+ftbmoney.shop.entry.lock=Закрыт
+ftbmoney.shop.entry.item=Предмет
+ftbmoney.shop.entry.disabled_server=Отключен на сервере
+ftbmoney.shop.entry.buy=Цена покупки
+ftbmoney.sell=Продать
+ftbmoney.buy=Купить
+ftbmoney.balance=Баланс
+commands.ftbmoney.setmoney.usage=/setmoney <player> <amount>
+commands.ftbmoney.setmoney.set=Set %s's balance to %s
+commands.ftbmoney.setmoney.add=Added %s to %s's balance
+commands.ftbmoney.pay.usage=/pay <player> <amount>
+commands.ftbmoney.money.usage=/money
+commands.ftbmoney.import_shop_items_from_chest.usage=/import_shop_items_from_chest <tab> [price] [replace]
+commands.ftbmoney.import_shop_items_from_chest.text=Imported %d items into %s
+commands.ftbmoney.import_shop_items_from_chest.invalid_id=Invalid tab ID!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
