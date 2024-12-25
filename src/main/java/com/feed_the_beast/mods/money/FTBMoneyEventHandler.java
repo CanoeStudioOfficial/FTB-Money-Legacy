@@ -87,15 +87,15 @@ public class FTBMoneyEventHandler
 
 	@SubscribeEvent
 	public static void onPlayerJoinWorld(EntityJoinWorldEvent event) {
+		if (event.getEntity() instanceof EntityPlayerMP) {
+			EntityPlayerMP player = (EntityPlayerMP) event.getEntity();
+			long money = FTBMoney.getMoney(player);
+			new MessageUpdateMoney(money).sendTo(player);
+		}
 		if (event.getEntity() instanceof EntityPlayerSP) {
 			EntityPlayerSP player = (EntityPlayerSP) event.getEntity();
 			long money = FTBMoney.getMoney(player);
 			FTBMoney.setMoney(player, money);
-		}
-		if (event.getEntity() instanceof EntityPlayerMP) {
-			EntityPlayerMP player = (EntityPlayerMP) event.getEntity();
-			long money = FTBMoney.getMoney(player);
-			new MessageUpdateMoney(money).sendTo((EntityPlayerMP) player);
 		}
 	}
 
