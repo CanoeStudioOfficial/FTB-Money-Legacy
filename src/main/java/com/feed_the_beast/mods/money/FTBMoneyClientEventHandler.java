@@ -1,7 +1,6 @@
 package com.feed_the_beast.mods.money;
 
 import com.feed_the_beast.ftblib.events.client.CustomClickEvent;
-import com.feed_the_beast.mods.ftbmoney.Tags;
 import com.feed_the_beast.mods.money.gui.GuiShop;
 import com.feed_the_beast.mods.money.shop.Shop;
 import net.minecraftforge.fml.common.Mod;
@@ -12,13 +11,13 @@ import net.minecraftforge.fml.relauncher.Side;
 /**
  * @author LatvianModder
  */
-@Mod.EventBusSubscriber(modid = Tags.MOD_ID, value = Side.CLIENT)
+@Mod.EventBusSubscriber(modid = FTBMoney.MOD_ID, value = Side.CLIENT)
 public class FTBMoneyClientEventHandler
 {
 	@SubscribeEvent
 	public static void onCustomClick(CustomClickEvent event)
 	{
-		if (event.getID().getNamespace().equals(Tags.MOD_ID))
+		if (event.getID().getNamespace().equals(FTBMoney.MOD_ID))
 		{
 			if (event.getID().getPath().equals("open_gui"))
 			{

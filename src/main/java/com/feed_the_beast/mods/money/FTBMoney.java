@@ -7,7 +7,6 @@ import com.feed_the_beast.mods.money.command.CommandImportItemsFromChest;
 import com.feed_the_beast.mods.money.command.CommandMoney;
 import com.feed_the_beast.mods.money.command.CommandPay;
 import com.feed_the_beast.mods.money.command.CommandSetMoney;
-
 import com.feed_the_beast.mods.money.net.FTBMoneyNetHandler;
 import com.feed_the_beast.mods.money.net.MessageUpdateMoney;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,8 +30,8 @@ import org.apache.logging.log4j.Logger;
 )
 public class FTBMoney
 {
+    public static final String MOD_ID = Tags.MOD_ID;
 
-	public static final String VERSION = "0.0.0.ftbmoney";
 	public static final Logger LOGGER = LogManager.getLogger(Tags.MOD_NAME);
 
 	@SidedProxy(serverSide = "com.feed_the_beast.mods.money.FTBMoneyCommon", clientSide = "com.feed_the_beast.mods.money.FTBMoneyClient")
