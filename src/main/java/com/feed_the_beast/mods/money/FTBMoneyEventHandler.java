@@ -85,19 +85,24 @@ public class FTBMoneyEventHandler
 		}
 	}
 
-	@SubscribeEvent
-	public static void onPlayerJoinWorld(EntityJoinWorldEvent event) {
-		if (event.getEntity() instanceof EntityPlayerMP) {
-			EntityPlayerMP player = (EntityPlayerMP) event.getEntity();
-			long money = FTBMoney.getMoney(player);
-			new MessageUpdateMoney(money).sendTo(player);
-		}
-		if (event.getEntity() instanceof EntityPlayerSP) {
-			EntityPlayerSP player = (EntityPlayerSP) event.getEntity();
-			long money = FTBMoney.getMoney(player);
-			FTBMoney.setMoney(player, money);
-		}
-	}
+    @SubscribeEvent
+    public static void onPlayerJoinWorld(EntityJoinWorldEvent event) {
+        if (event.getEntity() instanceof EntityPlayerMP) {
+            EntityPlayerMP player = (EntityPlayerMP) event.getEntity();
+            long money = FTBMoney.getMoney(player);
+            new MessageUpdateMoney(money).sendTo(player);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public static void onPlayerJoinWorldClient(EntityJoinWorldEvent event) {
+        if (event.getEntity() instanceof EntityPlayerSP) {
+            EntityPlayerSP player = (EntityPlayerSP) event.getEntity();
+            long money = FTBMoney.getMoney(player);
+            FTBMoney.setMoney(player, money);
+        }
+    }
 
 	@SubscribeEvent
 	public static void onPlayerClone(net.minecraftforge.event.entity.player.PlayerEvent.Clone event)
