@@ -7,6 +7,7 @@ import com.feed_the_beast.ftblib.lib.util.StringUtils;
 import com.feed_the_beast.ftbquests.quest.QuestObject;
 import com.feed_the_beast.ftbquests.quest.QuestObjectType;
 import com.feed_the_beast.ftbquests.util.ConfigQuestObject;
+import com.feed_the_beast.mods.money.FloatMoneyHelper;
 import com.latmod.mods.itemfilters.item.ItemStackSerializer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -25,6 +26,9 @@ public class ShopEntry implements INBTSerializable<NBTTagCompound>
 	public ItemStack stack = ItemStack.EMPTY;
 	public long buy = 0L;
 	public long sell = 0L;
+	public double buyDouble = 0.0;
+	public double sellDouble = 0.0;
+	public boolean useDoublePrecision = false;
 	public BlockDimPos stock = null;
 	public UUID createdBy = null;
 	public int lock = 0;
@@ -41,14 +45,31 @@ public class ShopEntry implements INBTSerializable<NBTTagCompound>
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setTag("item", ItemStackSerializer.write(stack, false));
 
-		if (buy > 0L)
+		if (useDoublePrecision)
 		{
-			nbt.setLong("buy", buy);
-		}
+			if (buyDouble > 0.0)
+			{
+				nbt.setDouble("buy_double", buyDouble);
+			}
 
-		if (sell > 0L)
+			if (sellDouble > 0.0)
+			{
+				nbt.setDouble("sell_double", sellDouble);
+			}
+
+			nbt.setBoolean("use_double_precision", true);
+		}
+		else
 		{
-			nbt.setLong("sell", sell);
+			if (buy > 0L)
+			{
+				nbt.setLong("buy", buy);
+			}
+
+			if (sell > 0L)
+			{
+				nbt.setLong("sell", sell);
+			}
 		}
 
 		if (stock != null)
@@ -79,8 +100,25 @@ public class ShopEntry implements INBTSerializable<NBTTagCompound>
 	{
 		page = nbt.getString("page");
 		stack = ItemStackSerializer.read(nbt.getTag("item"));
-		buy = nbt.getLong("buy");
-		sell = nbt.getLong("sell");
+		
+		useDoublePrecision = nbt.getBoolean("use_double_precision");
+		
+		if (useDoublePrecision || nbt.hasKey("buy_double") || nbt.hasKey("sell_double"))
+		{
+			useDoublePrecision = true;
+			buyDouble = FloatMoneyHelper.normalize(nbt.getDouble("buy_double"));
+			sellDouble = FloatMoneyHelper.normalize(nbt.getDouble("sell_double"));
+			buy = FloatMoneyHelper.toInternal(buyDouble);
+			sell = FloatMoneyHelper.toInternal(sellDouble);
+		}
+		else
+		{
+			buy = nbt.getLong("buy");
+			sell = nbt.getLong("sell");
+			buyDouble = FloatMoneyHelper.fromInternal(buy);
+			sellDouble = FloatMoneyHelper.fromInternal(sell);
+		}
+		
 		int[] p = nbt.getIntArray("stock");
 		stock = p.length == 4 ? new BlockDimPos(p[0], p[1], p[2], p[3]) : null;
 		createdBy = StringUtils.fromString(nbt.getString("created_by"));
@@ -123,9 +161,14 @@ public class ShopEntry implements INBTSerializable<NBTTagCompound>
 	public void getConfig(ConfigGroup group)
 	{
 		group.add("item", new ConfigItemStack.SimpleStack(() -> stack, v -> stack = v), new ConfigItemStack(ItemStack.EMPTY));
-		group.addLong("buy", () -> buy, v -> buy = v, 1L, 0L, Long.MAX_VALUE);
-		group.addLong("sell", () -> sell, v -> sell = v, 1L, 0L, Long.MAX_VALUE);
-		//group.addLong("sell", () -> sell, v -> sell = v, 0L, 0L, Long.MAX_VALUE);
+		group.addLong("buy", () -> buy, v -> {
+			buy = v;
+			buyDouble = FloatMoneyHelper.fromInternal(v);
+		}, 1L, 0L, Long.MAX_VALUE);
+		group.addLong("sell", () -> sell, v -> {
+			sell = v;
+			sellDouble = FloatMoneyHelper.fromInternal(v);
+		}, 1L, 0L, Long.MAX_VALUE);
 		group.add("lock", new ConfigQuestObject(tab.shop.file.get(), lock, QuestObjectType.ALL_PROGRESSING_OR_NULL)
 		{
 			@Override
@@ -146,5 +189,37 @@ public class ShopEntry implements INBTSerializable<NBTTagCompound>
 	public int getIndex()
 	{
 		return tab.entries.indexOf(this);
+	}
+
+	public double getBuyPrice()
+	{
+		return useDoublePrecision ? buyDouble : FloatMoneyHelper.fromInternal(buy);
+	}
+
+	public double getSellPrice()
+	{
+		return useDoublePrecision ? sellDouble : FloatMoneyHelper.fromInternal(sell);
+	}
+
+	public void setBuyPrice(double price)
+	{
+		buyDouble = FloatMoneyHelper.normalize(price);
+		buy = FloatMoneyHelper.toInternal(price);
+	}
+
+	public void setSellPrice(double price)
+	{
+		sellDouble = FloatMoneyHelper.normalize(price);
+		sell = FloatMoneyHelper.toInternal(price);
+	}
+
+	public String getBuyPriceString()
+	{
+		return FloatMoneyHelper.format(getBuyPrice());
+	}
+
+	public String getSellPriceString()
+	{
+		return FloatMoneyHelper.format(getSellPrice());
 	}
 }

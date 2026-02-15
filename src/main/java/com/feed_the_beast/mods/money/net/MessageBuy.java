@@ -6,6 +6,7 @@ import com.feed_the_beast.ftblib.lib.net.MessageToServer;
 import com.feed_the_beast.ftblib.lib.net.NetworkWrapper;
 import com.feed_the_beast.ftbquests.quest.ServerQuestFile;
 import com.feed_the_beast.mods.money.FTBMoney;
+import com.feed_the_beast.mods.money.FloatMoneyHelper;
 import com.feed_the_beast.mods.money.shop.Shop;
 import com.feed_the_beast.mods.money.shop.ShopEntry;
 import com.feed_the_beast.mods.money.shop.ShopTab;
@@ -16,8 +17,6 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author LatvianModder
@@ -72,72 +71,96 @@ public class MessageBuy extends MessageToServer
 			return;
 		}
 
-		long money = FTBMoney.getMoney(player);
+		double money = FTBMoney.getMoneyDouble(player);
+		double buyPrice = entry.getBuyPrice();
+		double sellPrice = entry.getSellPrice();
 
-		if (entry.buy >= 1) {
-			if (money >= entry.buy * count && entry.isUnlocked(Objects.requireNonNull(ServerQuestFile.INSTANCE.getData(player)).getFile())) {
+		if (buyPrice >= 0.01)
+		{
+			double totalCost = FloatMoneyHelper.multiply(buyPrice, count);
+			
+			if (FloatMoneyHelper.compare(money, totalCost) >= 0 && entry.isUnlocked(Objects.requireNonNull(ServerQuestFile.INSTANCE.getData(player)).getFile()))
+			{
 				ItemStack stack = entry.stack;
 
-				if (stack.getCount() * count <= stack.getMaxStackSize()) {
+				if (stack.getCount() * count <= stack.getMaxStackSize())
+				{
 					ItemHandlerHelper.giveItemToPlayer(player, ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() * count));
-				} else {
-					for (int i = 0; i < count; i++) {
+				}
+				else
+				{
+					for (int i = 0; i < count; i++)
+					{
 						ItemHandlerHelper.giveItemToPlayer(player, stack.copy());
 					}
 				}
 
-				FTBMoney.setMoney(player, money - entry.buy * count);
+				FTBMoney.removeMoneyDouble(player, totalCost);
 			}
 		}
-		else if (entry.sell >= 1) {
+		else if (sellPrice >= 0.01)
+		{
 			Map<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
 			int slot = 0;
 			int current_items = 0;
-			for (ItemStack next : player.inventory.mainInventory) {
-				if (next != null) {
-					if (next.isItemEqual(entry.stack)) {
-						current_items += next.getCount();
-						items.put(slot, next);
-					}
+			
+			for (ItemStack next : player.inventory.mainInventory)
+			{
+				if (next != null && next.isItemEqual(entry.stack))
+				{
+					current_items += next.getCount();
+					items.put(slot, next);
 				}
 				slot++;
 			}
 
-			if (current_items >= entry.stack.getCount() * count && entry.sell > 0) {
-				int remaining_items = entry.stack.getCount() * count;
-				AtomicLong addmoney = new AtomicLong(0);
-				AtomicInteger selled = new AtomicInteger(0);
-				// Sell each item
-				for (Map.Entry<Integer, ItemStack> entrys : items.entrySet()) {
+			int requiredItems = entry.stack.getCount() * count;
+			
+			if (current_items >= requiredItems)
+			{
+				int remaining_items = requiredItems;
+				int sold = 0;
+				
+				for (Map.Entry<Integer, ItemStack> entrys : items.entrySet())
+				{
 					ItemStack item = entrys.getValue();
 
-					if (remaining_items >= 0) {
-						if (item.getCount() <= remaining_items) {
-							// Sell the entire stack
-							addmoney.addAndGet(entry.sell);
-							remaining_items -= item.getCount();
-							selled.addAndGet(item.getCount());
-							item.shrink(item.getCount());
-						} else {
-							// Sell part of the stack
-							addmoney.addAndGet(entry.sell);
-							selled.addAndGet(remaining_items);
-							item.shrink(remaining_items);
-							break; // Exit early since we've sold enough items
-						}
+					if (remaining_items <= 0)
+					{
+						break;
+					}
+
+					if (item.getCount() <= remaining_items)
+					{
+						sold += item.getCount();
+						remaining_items -= item.getCount();
+						item.shrink(item.getCount());
+					}
+					else
+					{
+						sold += remaining_items;
+						item.shrink(remaining_items);
+						remaining_items = 0;
 					}
 				}
-				FTBMoney.setMoney(player, money + addmoney.get() * selled.get());
-			}
-			else if (entry.sell == 0 && entry.buy == 0) {
-				ItemStack stack = entry.stack;
 
-				if (stack.getCount() * count <= stack.getMaxStackSize()) {
-					ItemHandlerHelper.giveItemToPlayer(player, ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() * count));
-				} else {
-					for (int i = 0; i < count; i++) {
-						ItemHandlerHelper.giveItemToPlayer(player, stack.copy());
-					}
+				double totalEarnings = FloatMoneyHelper.multiply(sellPrice, sold / (double) entry.stack.getCount());
+				FTBMoney.addMoneyDouble(player, totalEarnings);
+			}
+		}
+		else if (FloatMoneyHelper.isZero(buyPrice) && FloatMoneyHelper.isZero(sellPrice))
+		{
+			ItemStack stack = entry.stack;
+
+			if (stack.getCount() * count <= stack.getMaxStackSize())
+			{
+				ItemHandlerHelper.giveItemToPlayer(player, ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() * count));
+			}
+			else
+			{
+				for (int i = 0; i < count; i++)
+				{
+					ItemHandlerHelper.giveItemToPlayer(player, stack.copy());
 				}
 			}
 		}
