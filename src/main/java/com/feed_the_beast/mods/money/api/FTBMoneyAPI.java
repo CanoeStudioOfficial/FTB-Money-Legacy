@@ -110,7 +110,7 @@ public final class FTBMoneyAPI implements IFTBMoneyAPI
 	{
 		double current = getMoneyDouble(player);
 		double newAmount = FloatMoneyHelper.add(current, amount);
-		newAmount = FloatMoneyHelper.clamp(newAmount, 0.0, FloatMoneyHelper.MAX_VALUE);
+		newAmount = FloatMoneyHelper.clamp(newAmount, 0.0, FloatMoneyHelper.getMaxValue());
 		setMoneyDouble(player, newAmount);
 		return newAmount;
 	}
@@ -129,7 +129,7 @@ public final class FTBMoneyAPI implements IFTBMoneyAPI
 	{
 		double current = getMoneyDouble(player);
 		double newAmount = FloatMoneyHelper.subtract(current, amount);
-		newAmount = FloatMoneyHelper.clamp(newAmount, 0.0, FloatMoneyHelper.MAX_VALUE);
+		newAmount = FloatMoneyHelper.clamp(newAmount, 0.0, FloatMoneyHelper.getMaxValue());
 		setMoneyDouble(player, newAmount);
 		return newAmount;
 	}
@@ -273,6 +273,6 @@ public final class FTBMoneyAPI implements IFTBMoneyAPI
 	@Override
 	public double getMaxMoneyDouble()
 	{
-		return FloatMoneyHelper.MAX_VALUE;
+		return FloatMoneyHelper.getMaxValue();
 	}
 }
