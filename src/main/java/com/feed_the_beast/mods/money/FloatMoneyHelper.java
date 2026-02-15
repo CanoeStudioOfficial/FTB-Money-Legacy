@@ -18,9 +18,9 @@ public final class FloatMoneyHelper
 {
 	public static final int DEFAULT_SCALE = 2;
 	public static final double MIN_VALUE = 0.0;
-	public static final double MAX_VALUE = (double) Long.MAX_VALUE / Math.pow(10, DEFAULT_SCALE);
 	
-	private static final BigDecimal MULTIPLIER = BigDecimal.valueOf(Math.pow(10, DEFAULT_SCALE));
+	private static int currentScale = DEFAULT_SCALE;
+	private static BigDecimal currentMultiplier = BigDecimal.valueOf(Math.pow(10, DEFAULT_SCALE));
 	private static final DecimalFormat DECIMAL_FORMAT;
 	
 	static
@@ -35,6 +35,47 @@ public final class FloatMoneyHelper
 	}
 
 	/**
+	 * 获取当前精度小数位数
+	 * 
+	 * @return 当前精度小数位数
+	 */
+	public static int getPrecisionScale()
+	{
+		return currentScale;
+	}
+
+	/**
+	 * 设置精度小数位数
+	 * 
+	 * @param scale 精度小数位数 (0-6)
+	 */
+	public static void setPrecisionScale(int scale)
+	{
+		currentScale = Math.max(0, Math.min(6, scale));
+		currentMultiplier = BigDecimal.valueOf(Math.pow(10, currentScale));
+	}
+
+	/**
+	 * 获取最大金钱值
+	 * 
+	 * @return 最大金钱值
+	 */
+	public static double getMaxValue()
+	{
+		return (double) Long.MAX_VALUE / Math.pow(10, currentScale);
+	}
+
+	/**
+	 * 检查是否启用浮点数精度模式
+	 * 
+	 * @return 如果启用浮点数精度返回true
+	 */
+	public static boolean isDoublePrecisionEnabled()
+	{
+		return FTBMoneyConfig.general.use_double_precision;
+	}
+
+	/**
 	 * 验证浮点数金钱值是否有效
 	 * 
 	 * @param value 要验证的值
@@ -42,7 +83,7 @@ public final class FloatMoneyHelper
 	 */
 	public static boolean isValid(double value)
 	{
-		return !Double.isNaN(value) && !Double.isInfinite(value) && value >= MIN_VALUE && value <= MAX_VALUE;
+		return !Double.isNaN(value) && !Double.isInfinite(value) && value >= MIN_VALUE && value <= getMaxValue();
 	}
 
 	/**
@@ -62,14 +103,14 @@ public final class FloatMoneyHelper
 	}
 
 	/**
-	 * 将浮点数金钱值四舍五入到指定精度
+	 * 将浮点数金钱值四舍五入到当前精度
 	 * 
 	 * @param value 要处理的值
 	 * @return 四舍五入后的值
 	 */
 	public static double roundToScale(double value)
 	{
-		return roundToScale(value, DEFAULT_SCALE);
+		return roundToScale(value, currentScale);
 	}
 
 	/**
@@ -93,7 +134,7 @@ public final class FloatMoneyHelper
 
 	/**
 	 * 将浮点数金钱转换为内部存储用的long值
-	 * 使用定点数表示法，精度由DEFAULT_SCALE决定
+	 * 使用定点数表示法，精度由当前配置决定
 	 * 
 	 * @param value 浮点数金钱值
 	 * @return 内部存储用的long值
@@ -106,8 +147,8 @@ public final class FloatMoneyHelper
 		}
 		
 		BigDecimal bd = BigDecimal.valueOf(value);
-		bd = bd.setScale(DEFAULT_SCALE, RoundingMode.HALF_UP);
-		bd = bd.multiply(MULTIPLIER);
+		bd = bd.setScale(currentScale, RoundingMode.HALF_UP);
+		bd = bd.multiply(currentMultiplier);
 		return bd.longValue();
 	}
 
@@ -125,7 +166,7 @@ public final class FloatMoneyHelper
 		}
 		
 		BigDecimal bd = BigDecimal.valueOf(value);
-		bd = bd.divide(MULTIPLIER, DEFAULT_SCALE, RoundingMode.HALF_UP);
+		bd = bd.divide(currentMultiplier, currentScale, RoundingMode.HALF_UP);
 		return bd.doubleValue();
 	}
 
@@ -212,23 +253,34 @@ public final class FloatMoneyHelper
 	{
 		if (!isValid(value))
 		{
-			return withSymbol ? "\u0398 0.00" : "0.00";
+			String zeroStr = isDoublePrecisionEnabled() ? "0." + repeat("0", currentScale) : "0";
+			return withSymbol ? "\u0398 " + zeroStr : zeroStr;
 		}
 		
 		BigDecimal bd = BigDecimal.valueOf(value);
-		bd = bd.setScale(DEFAULT_SCALE, RoundingMode.HALF_UP);
+		bd = bd.setScale(currentScale, RoundingMode.HALF_UP);
 		
 		String formatted;
-		if (bd.scale() == 0)
+		if (!isDoublePrecisionEnabled() || bd.scale() == 0)
 		{
 			formatted = String.format(Locale.US, "%,d", bd.longValue());
 		}
 		else
 		{
-			formatted = String.format(Locale.US, "%,.2f", bd.doubleValue());
+			formatted = String.format(Locale.US, "%,." + currentScale + "f", bd.doubleValue());
 		}
 		
 		return withSymbol ? "\u0398 " + formatted : formatted;
+	}
+
+	private static String repeat(String str, int count)
+	{
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < count; i++)
+		{
+			sb.append(str);
+		}
+		return sb.toString();
 	}
 
 	/**
@@ -241,7 +293,8 @@ public final class FloatMoneyHelper
 	{
 		if (value == 0.0)
 		{
-			return "\u0398 0.00";
+			String zeroStr = isDoublePrecisionEnabled() ? "0." + repeat("0", currentScale) : "0";
+			return "\u0398 " + zeroStr;
 		}
 		
 		String sign = value > 0 ? "+" : "-";
@@ -259,7 +312,7 @@ public final class FloatMoneyHelper
 	{
 		BigDecimal bdA = BigDecimal.valueOf(normalize(a));
 		BigDecimal bdB = BigDecimal.valueOf(normalize(b));
-		return bdA.add(bdB).setScale(DEFAULT_SCALE, RoundingMode.HALF_UP).doubleValue();
+		return bdA.add(bdB).setScale(currentScale, RoundingMode.HALF_UP).doubleValue();
 	}
 
 	/**
@@ -273,7 +326,7 @@ public final class FloatMoneyHelper
 	{
 		BigDecimal bdA = BigDecimal.valueOf(normalize(a));
 		BigDecimal bdB = BigDecimal.valueOf(normalize(b));
-		return bdA.subtract(bdB).setScale(DEFAULT_SCALE, RoundingMode.HALF_UP).doubleValue();
+		return bdA.subtract(bdB).setScale(currentScale, RoundingMode.HALF_UP).doubleValue();
 	}
 
 	/**
@@ -287,7 +340,7 @@ public final class FloatMoneyHelper
 	{
 		BigDecimal bdA = BigDecimal.valueOf(normalize(a));
 		BigDecimal bdB = BigDecimal.valueOf(normalize(b));
-		return bdA.multiply(bdB).setScale(DEFAULT_SCALE, RoundingMode.HALF_UP).doubleValue();
+		return bdA.multiply(bdB).setScale(currentScale, RoundingMode.HALF_UP).doubleValue();
 	}
 
 	/**
@@ -306,7 +359,7 @@ public final class FloatMoneyHelper
 		
 		BigDecimal bdA = BigDecimal.valueOf(normalize(a));
 		BigDecimal bdB = BigDecimal.valueOf(normalize(b));
-		return bdA.divide(bdB, DEFAULT_SCALE, RoundingMode.HALF_UP).doubleValue();
+		return bdA.divide(bdB, currentScale, RoundingMode.HALF_UP).doubleValue();
 	}
 
 	/**

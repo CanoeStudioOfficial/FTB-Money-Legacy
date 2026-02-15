@@ -76,7 +76,7 @@ public class CommandPay extends CommandBase
 		}
 
 		EntityPlayerMP senderPlayer = getCommandSenderAsPlayer(sender);
-		double money = FTBMoney.getMoneyDouble(senderPlayer);
+		double money = FTBMoney.getMoneyAuto(senderPlayer);
 		double pay = FloatMoneyHelper.parse(args[1]);
 
 		if (FloatMoneyHelper.isZero(pay) || FloatMoneyHelper.isNegative(pay))
@@ -97,10 +97,10 @@ public class CommandPay extends CommandBase
 		ITextComponent playerName = player.getDisplayName();
 		playerName.getStyle().setColor(TextFormatting.BLUE);
 
-		FTBMoney.removeMoneyDouble(senderPlayer, pay);
-		FTBMoney.addMoneyDouble(player, pay);
+		FTBMoney.removeMoneyAuto(senderPlayer, pay);
+		FTBMoney.addMoneyAuto(player, pay);
 
-		ITextComponent amountComponent = FTBMoney.moneyComponentDouble(pay);
+		ITextComponent amountComponent = FTBMoney.moneyComponentAuto(pay);
 		ITextComponent component = new TextComponentString("").appendSibling(senderName).appendText(" > ").appendSibling(playerName).appendText(" ").appendSibling(amountComponent);
 		player.sendMessage(component);
 		sender.sendMessage(component);

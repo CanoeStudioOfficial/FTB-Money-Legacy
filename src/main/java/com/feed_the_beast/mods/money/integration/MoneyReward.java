@@ -9,6 +9,7 @@ import com.feed_the_beast.ftbquests.quest.Quest;
 import com.feed_the_beast.ftbquests.quest.reward.Reward;
 import com.feed_the_beast.ftbquests.quest.reward.RewardType;
 import com.feed_the_beast.mods.money.FTBMoney;
+import com.feed_the_beast.mods.money.FTBMoneyConfig;
 import com.feed_the_beast.mods.money.FloatMoneyHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,7 +29,6 @@ public class MoneyReward extends Reward
 	public int randomBonus = 0;
 	public double valueDouble = 1.0;
 	public double randomBonusDouble = 0.0;
-	public boolean useDoublePrecision = false;
 
 	public MoneyReward(Quest quest)
 	{
@@ -44,10 +44,9 @@ public class MoneyReward extends Reward
 	@Override
 	public void writeData(NBTTagCompound nbt)
 	{
-		if (useDoublePrecision)
+		if (FTBMoneyConfig.general.use_double_precision)
 		{
 			nbt.setDouble("ftb_money_double", valueDouble);
-			nbt.setBoolean("use_double_precision", true);
 
 			if (randomBonusDouble > 0.0)
 			{
@@ -68,11 +67,8 @@ public class MoneyReward extends Reward
 	@Override
 	public void readData(NBTTagCompound nbt)
 	{
-		useDoublePrecision = nbt.getBoolean("use_double_precision");
-
-		if (useDoublePrecision || nbt.hasKey("ftb_money_double"))
+		if (nbt.hasKey("ftb_money_double"))
 		{
-			useDoublePrecision = true;
 			valueDouble = FloatMoneyHelper.normalize(nbt.getDouble("ftb_money_double"));
 			randomBonusDouble = FloatMoneyHelper.normalize(nbt.getDouble("random_bonus_double"));
 			value = FloatMoneyHelper.toInternal(valueDouble);
@@ -91,9 +87,9 @@ public class MoneyReward extends Reward
 	public void writeNetData(DataOut data)
 	{
 		super.writeNetData(data);
-		data.writeBoolean(useDoublePrecision);
+		data.writeBoolean(FTBMoneyConfig.general.use_double_precision);
 		
-		if (useDoublePrecision)
+		if (FTBMoneyConfig.general.use_double_precision)
 		{
 			data.writeDouble(valueDouble);
 			data.writeDouble(randomBonusDouble);
@@ -109,9 +105,9 @@ public class MoneyReward extends Reward
 	public void readNetData(DataIn data)
 	{
 		super.readNetData(data);
-		useDoublePrecision = data.readBoolean();
+		boolean isDouble = data.readBoolean();
 		
-		if (useDoublePrecision)
+		if (isDouble)
 		{
 			valueDouble = FloatMoneyHelper.normalize(data.readDouble());
 			randomBonusDouble = FloatMoneyHelper.normalize(data.readDouble());
@@ -145,17 +141,15 @@ public class MoneyReward extends Reward
 	@Override
 	public void claim(EntityPlayerMP player, boolean notify)
 	{
-		long added;
 		double addedDouble;
 
-		if (useDoublePrecision)
+		if (FTBMoneyConfig.general.use_double_precision)
 		{
 			addedDouble = FloatMoneyHelper.add(valueDouble, player.world.rand.nextDouble() * randomBonusDouble);
-			added = FloatMoneyHelper.toInternal(addedDouble);
 		}
 		else
 		{
-			added = value + player.world.rand.nextInt(randomBonus + 1);
+			long added = value + player.world.rand.nextInt(randomBonus + 1);
 			addedDouble = FloatMoneyHelper.fromInternal(added);
 		}
 
@@ -163,14 +157,14 @@ public class MoneyReward extends Reward
 
 		if (notify)
 		{
-			new MessageDisplayRewardToast(id, FTBMoney.moneyComponentDouble(addedDouble), Icon.getIcon("ftbmoney:textures/beastcoinmini.png")).sendTo(player);
+			new MessageDisplayRewardToast(id, FTBMoney.moneyComponentAuto(addedDouble), Icon.getIcon("ftbmoney:textures/beastcoinmini.png")).sendTo(player);
 		}
 	}
 
 	@Override
 	public String getAltTitle()
 	{
-		if (useDoublePrecision)
+		if (FTBMoneyConfig.general.use_double_precision)
 		{
 			if (randomBonusDouble > 0.0)
 			{
@@ -190,7 +184,7 @@ public class MoneyReward extends Reward
 	@Override
 	public String getButtonText()
 	{
-		if (useDoublePrecision)
+		if (FTBMoneyConfig.general.use_double_precision)
 		{
 			if (randomBonusDouble > 0.0)
 			{
@@ -209,7 +203,7 @@ public class MoneyReward extends Reward
 
 	public double getValueDouble()
 	{
-		return useDoublePrecision ? valueDouble : FloatMoneyHelper.fromInternal(value);
+		return FTBMoneyConfig.general.use_double_precision ? valueDouble : FloatMoneyHelper.fromInternal(value);
 	}
 
 	public void setValueDouble(double val)
@@ -220,7 +214,7 @@ public class MoneyReward extends Reward
 
 	public double getRandomBonusDouble()
 	{
-		return useDoublePrecision ? randomBonusDouble : FloatMoneyHelper.fromInternal(randomBonus);
+		return FTBMoneyConfig.general.use_double_precision ? randomBonusDouble : FloatMoneyHelper.fromInternal(randomBonus);
 	}
 
 	public void setRandomBonusDouble(double val)

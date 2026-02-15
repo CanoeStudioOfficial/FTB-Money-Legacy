@@ -7,6 +7,7 @@ import com.feed_the_beast.ftblib.lib.util.StringUtils;
 import com.feed_the_beast.ftbquests.quest.QuestObject;
 import com.feed_the_beast.ftbquests.quest.QuestObjectType;
 import com.feed_the_beast.ftbquests.util.ConfigQuestObject;
+import com.feed_the_beast.mods.money.FTBMoneyConfig;
 import com.feed_the_beast.mods.money.FloatMoneyHelper;
 import com.latmod.mods.itemfilters.item.ItemStackSerializer;
 import net.minecraft.item.ItemStack;
@@ -28,7 +29,6 @@ public class ShopEntry implements INBTSerializable<NBTTagCompound>
 	public long sell = 0L;
 	public double buyDouble = 0.0;
 	public double sellDouble = 0.0;
-	public boolean useDoublePrecision = false;
 	public BlockDimPos stock = null;
 	public UUID createdBy = null;
 	public int lock = 0;
@@ -45,7 +45,7 @@ public class ShopEntry implements INBTSerializable<NBTTagCompound>
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setTag("item", ItemStackSerializer.write(stack, false));
 
-		if (useDoublePrecision)
+		if (FTBMoneyConfig.general.use_double_precision)
 		{
 			if (buyDouble > 0.0)
 			{
@@ -56,8 +56,6 @@ public class ShopEntry implements INBTSerializable<NBTTagCompound>
 			{
 				nbt.setDouble("sell_double", sellDouble);
 			}
-
-			nbt.setBoolean("use_double_precision", true);
 		}
 		else
 		{
@@ -101,11 +99,8 @@ public class ShopEntry implements INBTSerializable<NBTTagCompound>
 		page = nbt.getString("page");
 		stack = ItemStackSerializer.read(nbt.getTag("item"));
 		
-		useDoublePrecision = nbt.getBoolean("use_double_precision");
-		
-		if (useDoublePrecision || nbt.hasKey("buy_double") || nbt.hasKey("sell_double"))
+		if (nbt.hasKey("buy_double") || nbt.hasKey("sell_double"))
 		{
-			useDoublePrecision = true;
 			buyDouble = FloatMoneyHelper.normalize(nbt.getDouble("buy_double"));
 			sellDouble = FloatMoneyHelper.normalize(nbt.getDouble("sell_double"));
 			buy = FloatMoneyHelper.toInternal(buyDouble);
@@ -193,12 +188,12 @@ public class ShopEntry implements INBTSerializable<NBTTagCompound>
 
 	public double getBuyPrice()
 	{
-		return useDoublePrecision ? buyDouble : FloatMoneyHelper.fromInternal(buy);
+		return FTBMoneyConfig.general.use_double_precision ? buyDouble : FloatMoneyHelper.fromInternal(buy);
 	}
 
 	public double getSellPrice()
 	{
-		return useDoublePrecision ? sellDouble : FloatMoneyHelper.fromInternal(sell);
+		return FTBMoneyConfig.general.use_double_precision ? sellDouble : FloatMoneyHelper.fromInternal(sell);
 	}
 
 	public void setBuyPrice(double price)

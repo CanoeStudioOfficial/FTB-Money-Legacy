@@ -71,7 +71,7 @@ public class MessageBuy extends MessageToServer
 			return;
 		}
 
-		double money = FTBMoney.getMoneyDouble(player);
+		double money = FTBMoney.getMoneyAuto(player);
 		double buyPrice = entry.getBuyPrice();
 		double sellPrice = entry.getSellPrice();
 
@@ -95,7 +95,7 @@ public class MessageBuy extends MessageToServer
 					}
 				}
 
-				FTBMoney.removeMoneyDouble(player, totalCost);
+				FTBMoney.removeMoneyAuto(player, totalCost);
 			}
 		}
 		else if (sellPrice >= 0.01)
@@ -145,7 +145,7 @@ public class MessageBuy extends MessageToServer
 				}
 
 				double totalEarnings = FloatMoneyHelper.multiply(sellPrice, sold / (double) entry.stack.getCount());
-				FTBMoney.addMoneyDouble(player, totalEarnings);
+				FTBMoney.addMoneyAuto(player, totalEarnings);
 			}
 		}
 		else if (FloatMoneyHelper.isZero(buyPrice) && FloatMoneyHelper.isZero(sellPrice))

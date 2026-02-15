@@ -70,7 +70,7 @@ public class CommandSetMoney extends CommandBase
 		}
 
 		EntityPlayerMP player = getPlayer(server, sender, args[0]);
-		double money = FTBMoney.getMoneyDouble(player);
+		double money = FTBMoney.getMoneyAuto(player);
 
 		ITextComponent playerName = sender.getDisplayName();
 		playerName.getStyle().setColor(TextFormatting.BLUE);
@@ -83,15 +83,15 @@ public class CommandSetMoney extends CommandBase
 			
 			if (add < 0)
 			{
-				add = FloatMoneyHelper.clamp(add, -money, FloatMoneyHelper.MAX_VALUE);
+				add = FloatMoneyHelper.clamp(add, -money, FloatMoneyHelper.getMaxValue());
 			}
 
 			if (!FloatMoneyHelper.isZero(add))
 			{
-				FTBMoney.addMoneyDouble(player, add);
+				FTBMoney.addMoneyAuto(player, add);
 			}
 
-			ITextComponent amountComponent = FTBMoney.moneyComponentDouble(Math.abs(add));
+			ITextComponent amountComponent = FTBMoney.moneyComponentAuto(Math.abs(add));
 			sender.sendMessage(new TextComponentString("").appendSibling(playerName).appendText(add < 0.0 ? " - " : " + ").appendSibling(amountComponent));
 
 			if (player != sender)
@@ -105,10 +105,10 @@ public class CommandSetMoney extends CommandBase
 
 			if (!FloatMoneyHelper.equals(set, money))
 			{
-				FTBMoney.setMoneyDouble(player, set);
+				FTBMoney.setMoneyAuto(player, set);
 			}
 
-			ITextComponent amountComponent = FTBMoney.moneyComponentDouble(set);
+			ITextComponent amountComponent = FTBMoney.moneyComponentAuto(set);
 			sender.sendMessage(new TextComponentString("").appendSibling(playerName).appendText(" = ").appendSibling(amountComponent));
 
 			if (player != sender)

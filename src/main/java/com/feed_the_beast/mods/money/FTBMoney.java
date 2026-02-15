@@ -41,6 +41,7 @@ public class FTBMoney
 	@Mod.EventHandler
 	public void onPreInit(FMLPreInitializationEvent event)
 	{
+		FloatMoneyHelper.setPrecisionScale(FTBMoneyConfig.general.decimal_places);
 		FTBMoneyNetHandler.init();
 		FTBMoneyAPI.init();
 		PROXY.preInit();
@@ -153,7 +154,7 @@ public class FTBMoney
 	public static double addMoneyDouble(EntityPlayer player, double amount)
 	{
 		double newMoney = FloatMoneyHelper.add(getMoneyDouble(player), amount);
-		newMoney = FloatMoneyHelper.clamp(newMoney, 0.0, FloatMoneyHelper.MAX_VALUE);
+		newMoney = FloatMoneyHelper.clamp(newMoney, 0.0, FloatMoneyHelper.getMaxValue());
 		setMoneyDouble(player, newMoney);
 		return getMoneyDouble(player);
 	}
@@ -169,7 +170,7 @@ public class FTBMoney
 	{
 		double current = getMoneyDouble(player);
 		double newMoney = FloatMoneyHelper.subtract(current, amount);
-		newMoney = FloatMoneyHelper.clamp(newMoney, 0.0, FloatMoneyHelper.MAX_VALUE);
+		newMoney = FloatMoneyHelper.clamp(newMoney, 0.0, FloatMoneyHelper.getMaxValue());
 		setMoneyDouble(player, newMoney);
 		return getMoneyDouble(player);
 	}
@@ -192,5 +193,94 @@ public class FTBMoney
 		}
 		removeMoneyDouble(player, amount);
 		return true;
+	}
+
+	public static boolean isDoublePrecisionMode()
+	{
+		return FTBMoneyConfig.general.use_double_precision;
+	}
+
+	public static double getMoneyAuto(EntityPlayer player)
+	{
+		return isDoublePrecisionMode() ? getMoneyDouble(player) : (double) getMoney(player);
+	}
+
+	public static void setMoneyAuto(EntityPlayer player, double money)
+	{
+		if (isDoublePrecisionMode())
+		{
+			setMoneyDouble(player, money);
+		}
+		else
+		{
+			setMoney(player, (long) money);
+		}
+	}
+
+	public static String moneyStringAuto(double money)
+	{
+		if (isDoublePrecisionMode())
+		{
+			return FloatMoneyHelper.format(money);
+		}
+		else
+		{
+			return String.format("\u0398 %,d", (long) money);
+		}
+	}
+
+	public static ITextComponent moneyComponentAuto(double money)
+	{
+		ITextComponent component = new TextComponentString(moneyStringAuto(money));
+		component.getStyle().setColor(TextFormatting.GOLD);
+		return component;
+	}
+
+	public static boolean hasMoneyAuto(EntityPlayer player, double amount)
+	{
+		if (isDoublePrecisionMode())
+		{
+			return FloatMoneyHelper.compare(getMoneyDouble(player), amount) >= 0;
+		}
+		else
+		{
+			return getMoney(player) >= (long) amount;
+		}
+	}
+
+	public static double addMoneyAuto(EntityPlayer player, double amount)
+	{
+		if (isDoublePrecisionMode())
+		{
+			return addMoneyDouble(player, amount);
+		}
+		else
+		{
+			return (double) addMoney(player, (long) amount);
+		}
+	}
+
+	public static double removeMoneyAuto(EntityPlayer player, double amount)
+	{
+		if (isDoublePrecisionMode())
+		{
+			return removeMoneyDouble(player, amount);
+		}
+		else
+		{
+			return (double) removeMoney(player, (long) amount);
+		}
+	}
+
+	public static boolean tryRemoveMoneyAuto(EntityPlayer player, double amount)
+	{
+		if (isDoublePrecisionMode())
+		{
+			return tryRemoveMoneyDouble(player, amount);
+		}
+		else
+		{
+			return tryRemoveMoney(player, (long) amount);
+		}
 	}
 }
