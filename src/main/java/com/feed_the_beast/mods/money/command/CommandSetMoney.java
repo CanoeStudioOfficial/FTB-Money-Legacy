@@ -1,7 +1,6 @@
 package com.feed_the_beast.mods.money.command;
 
 import com.feed_the_beast.mods.money.FTBMoney;
-import com.feed_the_beast.mods.money.FloatMoneyHelper;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -70,50 +69,41 @@ public class CommandSetMoney extends CommandBase
 		}
 
 		EntityPlayerMP player = getPlayer(server, sender, args[0]);
-		double money = FTBMoney.getMoneyAuto(player);
+		long money = FTBMoney.getMoney(player);
 
 		ITextComponent playerName = sender.getDisplayName();
 		playerName.getStyle().setColor(TextFormatting.BLUE);
 
-		String amountStr = args[1];
-		
-		if (amountStr.startsWith("~"))
+		if (args[1].startsWith("~"))
 		{
-			double add = FloatMoneyHelper.parse(amountStr.substring(1));
-			
-			if (add < 0)
+			long add = parseLong(args[1].substring(1), -money, Long.MAX_VALUE);
+
+			if (add != 0L)
 			{
-				add = FloatMoneyHelper.clamp(add, -money, FloatMoneyHelper.getMaxValue());
+				FTBMoney.setMoney(player, money + add);
 			}
 
-			if (!FloatMoneyHelper.isZero(add))
-			{
-				FTBMoney.addMoneyAuto(player, add);
-			}
-
-			ITextComponent amountComponent = FTBMoney.moneyComponentAuto(Math.abs(add));
-			sender.sendMessage(new TextComponentString("").appendSibling(playerName).appendText(add < 0.0 ? " - " : " + ").appendSibling(amountComponent));
+			sender.sendMessage(new TextComponentString("").appendSibling(playerName).appendText(add < 0L ? " - " : " + ").appendSibling(FTBMoney.moneyComponent(Math.abs(add))));
 
 			if (player != sender)
 			{
-				player.sendStatusMessage(new TextComponentString("").appendSibling(playerName).appendText(add < 0.0 ? " - " : " + ").appendSibling(amountComponent), true);
+				player.sendStatusMessage(new TextComponentString("").appendSibling(playerName).appendText(add < 0L ? " - " : " + ").appendSibling(FTBMoney.moneyComponent(Math.abs(add))), true);
 			}
 		}
 		else
 		{
-			double set = FloatMoneyHelper.parse(amountStr);
+			long set = parseLong(args[1], 0L, Long.MAX_VALUE);
 
-			if (!FloatMoneyHelper.equals(set, money))
+			if (set != money)
 			{
-				FTBMoney.setMoneyAuto(player, set);
+				FTBMoney.setMoney(player, set);
 			}
 
-			ITextComponent amountComponent = FTBMoney.moneyComponentAuto(set);
-			sender.sendMessage(new TextComponentString("").appendSibling(playerName).appendText(" = ").appendSibling(amountComponent));
+			sender.sendMessage(new TextComponentString("").appendSibling(playerName).appendText(" = ").appendSibling(FTBMoney.moneyComponent(set)));
 
 			if (player != sender)
 			{
-				player.sendStatusMessage(new TextComponentString("").appendSibling(playerName).appendText(" = ").appendSibling(amountComponent), true);
+				player.sendStatusMessage(new TextComponentString("").appendSibling(playerName).appendText(" = ").appendSibling(FTBMoney.moneyComponent(set)), true);
 			}
 		}
 	}

@@ -3,7 +3,6 @@ package com.feed_the_beast.mods.money;
 import com.feed_the_beast.ftblib.FTBLib;
 import com.feed_the_beast.ftblib.lib.util.NBTUtils;
 import com.feed_the_beast.mods.ftbmoney.Tags;
-import com.feed_the_beast.mods.money.api.FTBMoneyAPI;
 import com.feed_the_beast.mods.money.command.CommandImportItemsFromChest;
 import com.feed_the_beast.mods.money.command.CommandMoney;
 import com.feed_the_beast.mods.money.command.CommandPay;
@@ -41,9 +40,7 @@ public class FTBMoney
 	@Mod.EventHandler
 	public void onPreInit(FMLPreInitializationEvent event)
 	{
-		FloatMoneyHelper.setPrecisionScale(FTBMoneyConfig.general.decimal_places);
 		FTBMoneyNetHandler.init();
-		FTBMoneyAPI.init();
 		PROXY.preInit();
 	}
 
@@ -90,24 +87,9 @@ public class FTBMoney
 			new MessageUpdateMoney(money).sendTo((EntityPlayerMP) player);
 		}
 	}
-	public static double getMoneyDouble(EntityPlayer player)
-	{
-		return FloatMoneyHelper.fromInternal(getMoney(player));
-	}
-
-	public static void setMoneyDouble(EntityPlayer player, double money)
-	{
-		setMoney(player, FloatMoneyHelper.toInternal(money));
-	}
-
 	public static String moneyStringAdd(long money)
 	{
 		return String.format("\u0398 +%,d", money);
-	}
-
-	public static String moneyStringAddDouble(double money)
-	{
-		return "\u0398 +" + FloatMoneyHelper.format(money, false);
 	}
 
 	public static String moneyString(long money)
@@ -115,172 +97,10 @@ public class FTBMoney
 		return String.format("\u0398 %,d", money);
 	}
 
-	public static String moneyStringDouble(double money)
-	{
-		return FloatMoneyHelper.format(money);
-	}
-
 	public static ITextComponent moneyComponent(long money)
 	{
 		ITextComponent component = new TextComponentString(moneyString(money));
 		component.getStyle().setColor(TextFormatting.GOLD);
 		return component;
-	}
-
-	public static ITextComponent moneyComponentDouble(double money)
-	{
-		ITextComponent component = new TextComponentString(moneyStringDouble(money));
-		component.getStyle().setColor(TextFormatting.GOLD);
-		return component;
-	}
-
-	public static boolean hasMoney(EntityPlayer player, long amount)
-	{
-		return getMoney(player) >= amount;
-	}
-
-	public static boolean hasMoneyDouble(EntityPlayer player, double amount)
-	{
-		return FloatMoneyHelper.compare(getMoneyDouble(player), amount) >= 0;
-	}
-
-	public static long addMoney(EntityPlayer player, long amount)
-	{
-		long newMoney = getMoney(player) + amount;
-		setMoney(player, Math.max(0L, newMoney));
-		return getMoney(player);
-	}
-
-	public static double addMoneyDouble(EntityPlayer player, double amount)
-	{
-		double newMoney = FloatMoneyHelper.add(getMoneyDouble(player), amount);
-		newMoney = FloatMoneyHelper.clamp(newMoney, 0.0, FloatMoneyHelper.getMaxValue());
-		setMoneyDouble(player, newMoney);
-		return getMoneyDouble(player);
-	}
-
-	public static long removeMoney(EntityPlayer player, long amount)
-	{
-		long current = getMoney(player);
-		setMoney(player, Math.max(0L, current - amount));
-		return getMoney(player);
-	}
-
-	public static double removeMoneyDouble(EntityPlayer player, double amount)
-	{
-		double current = getMoneyDouble(player);
-		double newMoney = FloatMoneyHelper.subtract(current, amount);
-		newMoney = FloatMoneyHelper.clamp(newMoney, 0.0, FloatMoneyHelper.getMaxValue());
-		setMoneyDouble(player, newMoney);
-		return getMoneyDouble(player);
-	}
-
-	public static boolean tryRemoveMoney(EntityPlayer player, long amount)
-	{
-		if (!hasMoney(player, amount))
-		{
-			return false;
-		}
-		removeMoney(player, amount);
-		return true;
-	}
-
-	public static boolean tryRemoveMoneyDouble(EntityPlayer player, double amount)
-	{
-		if (!hasMoneyDouble(player, amount))
-		{
-			return false;
-		}
-		removeMoneyDouble(player, amount);
-		return true;
-	}
-
-	public static boolean isDoublePrecisionMode()
-	{
-		return FTBMoneyConfig.general.use_double_precision;
-	}
-
-	public static double getMoneyAuto(EntityPlayer player)
-	{
-		return isDoublePrecisionMode() ? getMoneyDouble(player) : (double) getMoney(player);
-	}
-
-	public static void setMoneyAuto(EntityPlayer player, double money)
-	{
-		if (isDoublePrecisionMode())
-		{
-			setMoneyDouble(player, money);
-		}
-		else
-		{
-			setMoney(player, (long) money);
-		}
-	}
-
-	public static String moneyStringAuto(double money)
-	{
-		if (isDoublePrecisionMode())
-		{
-			return FloatMoneyHelper.format(money);
-		}
-		else
-		{
-			return String.format("\u0398 %,d", (long) money);
-		}
-	}
-
-	public static ITextComponent moneyComponentAuto(double money)
-	{
-		ITextComponent component = new TextComponentString(moneyStringAuto(money));
-		component.getStyle().setColor(TextFormatting.GOLD);
-		return component;
-	}
-
-	public static boolean hasMoneyAuto(EntityPlayer player, double amount)
-	{
-		if (isDoublePrecisionMode())
-		{
-			return FloatMoneyHelper.compare(getMoneyDouble(player), amount) >= 0;
-		}
-		else
-		{
-			return getMoney(player) >= (long) amount;
-		}
-	}
-
-	public static double addMoneyAuto(EntityPlayer player, double amount)
-	{
-		if (isDoublePrecisionMode())
-		{
-			return addMoneyDouble(player, amount);
-		}
-		else
-		{
-			return (double) addMoney(player, (long) amount);
-		}
-	}
-
-	public static double removeMoneyAuto(EntityPlayer player, double amount)
-	{
-		if (isDoublePrecisionMode())
-		{
-			return removeMoneyDouble(player, amount);
-		}
-		else
-		{
-			return (double) removeMoney(player, (long) amount);
-		}
-	}
-
-	public static boolean tryRemoveMoneyAuto(EntityPlayer player, double amount)
-	{
-		if (isDoublePrecisionMode())
-		{
-			return tryRemoveMoneyDouble(player, amount);
-		}
-		else
-		{
-			return tryRemoveMoney(player, (long) amount);
-		}
 	}
 }

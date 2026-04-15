@@ -1,7 +1,6 @@
 package com.feed_the_beast.mods.money.command;
 
 import com.feed_the_beast.mods.money.FTBMoney;
-import com.feed_the_beast.mods.money.FloatMoneyHelper;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -76,18 +75,8 @@ public class CommandPay extends CommandBase
 		}
 
 		EntityPlayerMP senderPlayer = getCommandSenderAsPlayer(sender);
-		double money = FTBMoney.getMoneyAuto(senderPlayer);
-		double pay = FloatMoneyHelper.parse(args[1]);
-
-		if (FloatMoneyHelper.isZero(pay) || FloatMoneyHelper.isNegative(pay))
-		{
-			throw new CommandException("commands.ftbmoney.pay.invalid_amount");
-		}
-
-		if (FloatMoneyHelper.compare(pay, money) > 0)
-		{
-			throw new CommandException("commands.ftbmoney.pay.not_enough_money");
-		}
+		long money = FTBMoney.getMoney(senderPlayer);
+		long pay = parseLong(args[1], 1L, money);
 
 		EntityPlayerMP player = getPlayer(server, sender, args[0]);
 
@@ -97,11 +86,10 @@ public class CommandPay extends CommandBase
 		ITextComponent playerName = player.getDisplayName();
 		playerName.getStyle().setColor(TextFormatting.BLUE);
 
-		FTBMoney.removeMoneyAuto(senderPlayer, pay);
-		FTBMoney.addMoneyAuto(player, pay);
+		FTBMoney.setMoney(senderPlayer, money - pay);
+		FTBMoney.setMoney(player, FTBMoney.getMoney(player) + pay);
 
-		ITextComponent amountComponent = FTBMoney.moneyComponentAuto(pay);
-		ITextComponent component = new TextComponentString("").appendSibling(senderName).appendText(" > ").appendSibling(playerName).appendText(" ").appendSibling(amountComponent);
+		ITextComponent component = new TextComponentString("").appendSibling(senderName).appendText(" > ").appendSibling(playerName).appendText(" ").appendSibling(FTBMoney.moneyComponent(pay));
 		player.sendMessage(component);
 		sender.sendMessage(component);
 	}

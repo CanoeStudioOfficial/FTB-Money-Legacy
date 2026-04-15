@@ -40,6 +40,6 @@ public class CommandMoney extends CommandBase
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 	{
 		EntityPlayerMP player = getCommandSenderAsPlayer(sender);
-		player.sendMessage(FTBMoney.moneyComponentAuto(FTBMoney.getMoneyAuto(player)));
+		player.sendMessage(FTBMoney.moneyComponent(FTBMoney.getMoney(player)));
 	}
 }
