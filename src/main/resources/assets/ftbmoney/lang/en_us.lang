@@ -19,6 +19,11 @@ ftbmoney.shop.entry.buy=Buy Price
 ftbmoney.shop.entry.sell=Sell Price
 ftbmoney.shop.entry.lock=Lock
 ftbmoney.shop.entry.disabled_server=Disabled on Server
+ftbmoney.shop.entry.free=Free
+ftbmoney.shop.entry.locked=Locked!
+ftbmoney.shop.entry.requires=Requires
+ftbmoney.shop.entry.click_buy=Left Click to Buy
+ftbmoney.shop.entry.click_sell=Middle Click to Sell
 
 ftbquests.task.ftbmoney.money=Money
 ftbquests.reward.ftbmoney.money=Money
@@ -32,3 +37,8 @@ commands.ftbmoney.setmoney.set=Set %s's balance to %s
 commands.ftbmoney.import_shop_items_from_chest.usage=/import_shop_items_from_chest <tab> [price] [replace]
 commands.ftbmoney.import_shop_items_from_chest.invalid_id=Invalid tab ID!
 commands.ftbmoney.import_shop_items_from_chest.text=Imported %d items into %s
+
+commands.ftbmoney.sell.usage=/sell
+commands.ftbmoney.sell.no_item=You must hold an item to sell!
+commands.ftbmoney.sell.holding=Holding: %s x%d (Sell price: %s)
+commands.ftbmoney.sell.use_shop=Use the shop GUI to sell items (Middle-click on item)

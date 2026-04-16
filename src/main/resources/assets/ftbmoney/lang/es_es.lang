@@ -1,4 +1,5 @@
 sidebar_button.ftbmoney.shop=Tienda
+key.ftbmoney.shop=Abrir Tienda
 
 ftbmoney.balance=Saldo
 ftbmoney.buy=Comprar
@@ -7,20 +8,37 @@ ftbmoney.sell=Vender
 ftbmoney.shop.tab.title=Titulo
 ftbmoney.shop.tab.icon=Icono
 ftbmoney.shop.tab.lock=Bloquear
+ftbmoney.shop.tab.sort=Ordenar
+ftbmoney.shop.tab.sort.price_h_l=Precio Alto a Bajo
+ftbmoney.shop.tab.sort.price_l_h=Precio Bajo a Alto
+ftbmoney.shop.tab.sort.name_a_z=A a Z
+ftbmoney.shop.tab.sort.name_z_a=Z a A
 
 ftbmoney.shop.entry.item=Objeto
 ftbmoney.shop.entry.buy=Precio de Compra
 ftbmoney.shop.entry.sell=Precio de Venta
 ftbmoney.shop.entry.lock=Bloquear
+ftbmoney.shop.entry.disabled_server=Desactivado en el Servidor
+ftbmoney.shop.entry.free=Gratis
+ftbmoney.shop.entry.locked=Bloqueado!
+ftbmoney.shop.entry.requires=Requiere
+ftbmoney.shop.entry.click_buy=Clic Izquierdo para Comprar
+ftbmoney.shop.entry.click_sell=Clic Medio para Vender
 
 ftbquests.task.ftbmoney.money=Dinero
 ftbquests.reward.ftbmoney.money=Dinero
 
 commands.ftbmoney.money.usage=/money
+commands.ftbmoney.pay.usage=/pay <jugador> <cantidad>
 commands.ftbmoney.setmoney.usage=/setmoney <jugador> <cantidad>
-commands.ftbmoney.setmoney.add=Añadido %s a la cuenta de %s's
-commands.ftbmoney.setmoney.set=Ajustada la cuenta de %s's a %s
+commands.ftbmoney.setmoney.add=Añadido %s a la cuenta de %s
+commands.ftbmoney.setmoney.set=Ajustada la cuenta de %s a %s
 
 commands.ftbmoney.import_shop_items_from_chest.usage=/import_shop_items_from_chest <tabla> [precio] [reemplazar]
-commands.ftbmoney.import_shop_items_from_chest.invalid_id=ID de tabla invalida!!
+commands.ftbmoney.import_shop_items_from_chest.invalid_id=ID de tabla invalida!
 commands.ftbmoney.import_shop_items_from_chest.text=Importados %d objetos a %s
+
+commands.ftbmoney.sell.usage=/sell
+commands.ftbmoney.sell.no_item=Debes sostener un objeto para vender!
+commands.ftbmoney.sell.holding=Sosteniendo: %s x%d (Precio de venta: %s)
+commands.ftbmoney.sell.use_shop=Usa la GUI de la tienda para vender objetos (Clic medio en el objeto)

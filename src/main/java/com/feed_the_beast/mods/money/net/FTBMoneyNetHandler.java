@@ -15,6 +15,7 @@ public class FTBMoneyNetHandler
 		NET.register(new MessageUpdateMoney());
 		NET.register(new MessageSyncShop());
 		NET.register(new MessageBuy());
+		NET.register(new MessageSell());
 		NET.register(new MessageAddShopTab());
 		NET.register(new MessageEditShopTab());
 		NET.register(new MessageMoveShopTab());

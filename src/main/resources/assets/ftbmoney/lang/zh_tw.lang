@@ -1,0 +1,44 @@
+sidebar_button.ftbmoney.shop=商店
+key.ftbmoney.shop=開啟商店
+
+ftbmoney.balance=餘額
+ftbmoney.buy=購買
+ftbmoney.sell=出售
+
+ftbmoney.shop.tab.title=標題
+ftbmoney.shop.tab.icon=圖示
+ftbmoney.shop.tab.lock=鎖定
+ftbmoney.shop.tab.sort=排序
+ftbmoney.shop.tab.sort.price_h_l=價格從高到低
+ftbmoney.shop.tab.sort.price_l_h=價格從低到高
+ftbmoney.shop.tab.sort.name_a_z=名稱 A-Z
+ftbmoney.shop.tab.sort.name_z_a=名稱 Z-A
+
+ftbmoney.shop.entry.item=物品
+ftbmoney.shop.entry.buy=購買價格
+ftbmoney.shop.entry.sell=出售價格
+ftbmoney.shop.entry.lock=鎖定
+ftbmoney.shop.entry.disabled_server=在伺服器上已停用
+ftbmoney.shop.entry.free=免費
+ftbmoney.shop.entry.locked=已鎖定！
+ftbmoney.shop.entry.requires=需要
+ftbmoney.shop.entry.click_buy=左鍵點擊購買
+ftbmoney.shop.entry.click_sell=中鍵點擊出售
+
+ftbquests.task.ftbmoney.money=金錢
+ftbquests.reward.ftbmoney.money=金錢
+
+commands.ftbmoney.money.usage=/money
+commands.ftbmoney.pay.usage=/pay <玩家> <金額>
+commands.ftbmoney.setmoney.usage=/setmoney <玩家> <金額>
+commands.ftbmoney.setmoney.add=已向 %s 的餘額新增 %s
+commands.ftbmoney.setmoney.set=已將 %s 的餘額設定為 %s
+
+commands.ftbmoney.import_shop_items_from_chest.usage=/import_shop_items_from_chest <標籤頁> [價格] [取代]
+commands.ftbmoney.import_shop_items_from_chest.invalid_id=無效的標籤頁 ID！
+commands.ftbmoney.import_shop_items_from_chest.text=已向 %s 匯入 %d 個物品
+
+commands.ftbmoney.sell.usage=/sell
+commands.ftbmoney.sell.no_item=你必須手持物品才能出售！
+commands.ftbmoney.sell.holding=手持：%s x%d（出售價格：%s）
+commands.ftbmoney.sell.use_shop=使用商店介面出售物品（中鍵點擊物品）

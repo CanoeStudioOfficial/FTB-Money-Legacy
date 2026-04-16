@@ -14,6 +14,7 @@ import com.feed_the_beast.mods.money.FTBMoney;
 import com.feed_the_beast.mods.money.FTBMoneyClientConfig;
 import com.feed_the_beast.mods.money.net.MessageBuy;
 import com.feed_the_beast.mods.money.net.MessageEditShopEntry;
+import com.feed_the_beast.mods.money.net.MessageSell;
 import com.feed_the_beast.mods.money.shop.ShopEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -42,16 +43,21 @@ public class ButtonShopEntry extends Button
 		entry = e;
 		QuestObject lock = ClientQuestFile.INSTANCE.get(entry.lock);
 		locked = (entry.lock == 0 || lock != null && lock.isComplete(ClientQuestFile.INSTANCE.self)) ? (entry.disabledServer && !Minecraft.getMinecraft().isSingleplayer()) ? 1 : 0 : 2;
-		if (entry.buy >= 1) {
+		if (entry.buy >= 1 && entry.sell >= 1) {
+			setWidth(Math.max(panel.getGui().getTheme().getStringWidth(title), 
+				Math.max(panel.getGui().getTheme().getStringWidth(FTBMoney.moneyString(entry.buy)),
+					panel.getGui().getTheme().getStringWidth(FTBMoney.moneyString(entry.sell))) + 32));
+		}
+		else if (entry.buy >= 1) {
 			setWidth(Math.max(panel.getGui().getTheme().getStringWidth(title), panel.getGui().getTheme().getStringWidth(FTBMoney.moneyString(entry.buy))) + 32);
 		}
 		else if (entry.sell >= 1) {
 			setWidth(Math.max(panel.getGui().getTheme().getStringWidth(title), panel.getGui().getTheme().getStringWidth(FTBMoney.moneyString(entry.sell))) + 32);
 		}
 		else if (entry.sell == 0 && entry.buy == 0) {
-			setWidth(Math.max(panel.getGui().getTheme().getStringWidth(title), panel.getGui().getTheme().getStringWidth(I18n.format("shop.shop.entry.item.free"))) + 32);
+			setWidth(Math.max(panel.getGui().getTheme().getStringWidth(title), panel.getGui().getTheme().getStringWidth(I18n.format("ftbmoney.shop.entry.free"))) + 32);
 		}
-		setHeight(24);
+		setHeight(32);
 	}
 
 	@Override
@@ -62,30 +68,46 @@ public class ButtonShopEntry extends Button
 
 		if (button.isLeft())
 		{
+			// Left click: Buy
 			if (locked == 0 || entry.tab.shop.file.get().canEdit())
 			{
-				int maximum = 64;
-				if (entry.buy > 0) {
-					maximum = (int) Math.min(1024L, entry.buy <= 0L ? 1024L : FTBMoney.getMoney(Minecraft.getMinecraft().player) / entry.buy);
+				if (entry.buy <= 0) {
+					return;
 				}
-				else if (entry.sell > 0) {
-					int current_items = 0;
-					for (ItemStack next : Minecraft.getMinecraft().player.inventory.mainInventory) {
-						if (next != null) {
-							if (next.isItemEqual(entry.stack)) {
-								current_items += next.getCount();
-							}
-						}
-					}
-
-					maximum = (int) Math.min(1024L, entry.sell <= 0L ? 1024L : current_items / entry.stack.getCount());
-				}
+				int maximum = (int) Math.min(1024L, entry.buy <= 0L ? 1024L : FTBMoney.getMoney(Minecraft.getMinecraft().player) / entry.buy);
 				new GuiEditConfigValue("count", new ConfigInt(1, 1, maximum), (value, set) -> {
 					gui.openGui();
-
 					if (set)
 					{
 						new MessageBuy(entry, value.getInt()).sendToServer();
+					}
+				}).openGui();
+			}
+		}
+		else if (button.isMiddle())
+		{
+			// Middle click: Sell
+			if (locked == 0 || entry.tab.shop.file.get().canEdit())
+			{
+				if (entry.sell <= 0) {
+					return;
+				}
+				int current_items = 0;
+				for (ItemStack next : Minecraft.getMinecraft().player.inventory.mainInventory) {
+					if (!next.isEmpty() && next.isItemEqual(entry.stack) && ItemStack.areItemStackTagsEqual(next, entry.stack)) {
+						current_items += next.getCount();
+					}
+				}
+
+				int maximum = (int) Math.min(1024L, current_items / entry.stack.getCount());
+				if (maximum <= 0) {
+					return;
+				}
+				new GuiEditConfigValue("count", new ConfigInt(1, 1, maximum), (value, set) -> {
+					gui.openGui();
+					if (set)
+					{
+						new MessageSell(entry, value.getInt()).sendToServer();
 					}
 				}).openGui();
 			}
@@ -128,12 +150,12 @@ public class ButtonShopEntry extends Button
 	{
 		if (locked == 2)
 		{
-			list.add("Locked!");
+			list.add(I18n.format("ftbmoney.shop.entry.locked"));
 			QuestObject object = ClientQuestFile.INSTANCE.get(entry.lock);
 
 			if (object != null)
 			{
-				list.add("Requires: " + object.getObjectType().getColor() + object.getTitle());
+				list.add(I18n.format("ftbmoney.shop.entry.requires") + ": " + object.getObjectType().getColor() + object.getTitle());
 			}
 		}
 
@@ -145,6 +167,15 @@ public class ButtonShopEntry extends Button
 			}
 
 			GuiHelper.addStackTooltip(entry.stack, list);
+			
+			// Add buy/sell hints
+			list.add("");
+			if (entry.buy > 0) {
+				list.add(TextFormatting.GREEN + I18n.format("ftbmoney.shop.entry.click_buy"));
+			}
+			if (entry.sell > 0) {
+				list.add(TextFormatting.RED + I18n.format("ftbmoney.shop.entry.click_sell"));
+			}
 		}
 	}
 
@@ -172,7 +203,17 @@ public class ButtonShopEntry extends Button
 
 		drawIcon(theme, x + 4, y + 4, 16, 16);
 		theme.drawString(t, x + 24, y + 3, theme.getContentColor(getWidgetType()), Theme.SHADOW);
-		theme.drawString(TextFormatting.GOLD + FTBMoney.moneyString(entry.buy), x + 24, y + 13, Color4I.WHITE, Theme.SHADOW);
+		
+		// Draw buy price
+		if (entry.buy > 0) {
+			theme.drawString(TextFormatting.GREEN + I18n.format("ftbmoney.buy") + ": " + TextFormatting.GOLD + FTBMoney.moneyString(entry.buy), x + 24, y + 13, Color4I.WHITE, Theme.SHADOW);
+		}
+		
+		// Draw sell price
+		if (entry.sell > 0) {
+			int sellY = entry.buy > 0 ? y + 23 : y + 13;
+			theme.drawString(TextFormatting.RED + I18n.format("ftbmoney.sell") + ": " + TextFormatting.GOLD + FTBMoney.moneyString(entry.sell), x + 24, sellY, Color4I.WHITE, Theme.SHADOW);
+		}
 	}
 
 	@Override

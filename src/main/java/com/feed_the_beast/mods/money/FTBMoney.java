@@ -6,6 +6,7 @@ import com.feed_the_beast.mods.ftbmoney.Tags;
 import com.feed_the_beast.mods.money.command.CommandImportItemsFromChest;
 import com.feed_the_beast.mods.money.command.CommandMoney;
 import com.feed_the_beast.mods.money.command.CommandPay;
+import com.feed_the_beast.mods.money.command.CommandSell;
 import com.feed_the_beast.mods.money.command.CommandSetMoney;
 import com.feed_the_beast.mods.money.net.FTBMoneyNetHandler;
 import com.feed_the_beast.mods.money.net.MessageUpdateMoney;
@@ -51,6 +52,7 @@ public class FTBMoney
 		event.registerServerCommand(new CommandPay());
 		event.registerServerCommand(new CommandSetMoney());
 		event.registerServerCommand(new CommandImportItemsFromChest());
+		event.registerServerCommand(new CommandSell());
 	}
 
 	public static long getMoney(EntityPlayer player)
